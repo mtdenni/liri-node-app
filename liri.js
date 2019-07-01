@@ -1,8 +1,10 @@
 ////////////////////////////////////////////
 // Required Files
 ////////////////////////////////////////////
+
 require("dotenv").config(); // User must provide their own
-// var keys = require("./keys.js");
+var keys = require("./keys.js");
+var Spotify = require('node-spotify-api');
 var moment = require("moment");
 var fs = require("fs");
 const axios = require("axios");
@@ -11,12 +13,11 @@ var fileName = "random.txt";
 //////////////////////////////////////////////
 // // API Keys
 // ////////////////////////////////////////////
-// var spotify = new Spotify(keys.spotify);
+var spotify = new Spotify(keys.spotify);
 
 ////////////////////////////////////////////
 // Commandline Arguments
 ////////////////////////////////////////////
-var inputLength = process.argv.length;
 var argument = process.argv;
 var command = process.argv[2];
 var queryArg = sanitizeData();
@@ -25,7 +26,11 @@ var queryArg = sanitizeData();
 // Sanitize Data if user provides > 2 arguments
 ////////////////////////////////////////////
 function sanitizeData() {
-    return argument.slice(3).join("+");
+    if (command !== "spotify-this-song") {
+        return argument.slice(3).join("+");
+    } else {
+        return argument.slice(3).join(" ");
+    }
 }
 
 ////////////////////////////////////////////
@@ -69,11 +74,24 @@ function queryBandsInTown() {
 // Query the Spotify API for artist info
 ////////////////////////////////////////////
 function querySpotify() {
-    // Artist(s)
-    // The song 's name
-    // A preview link of the song from Spotify
-    // The album that the song is from
-
+    spotify
+        .search({
+            type: "track",
+            query: queryArg,
+            limit: 1
+        })
+        .then(function (response) {
+            track = response.tracks.items[0];
+            console.log(track.album.artists[0].name);
+            console.log(track.name);
+            if(track.preview_url) {
+                console.log(track.preview_url);
+            }
+            console.log(track.album.name);
+        })
+        .catch(function (err) {
+            console.log(err);
+        });
 
 }
 
@@ -104,12 +122,12 @@ function queryOmdb() {
 // Process commands in Random.txt
 ////////////////////////////////////////////
 function processRandomTxt() {
-    fs.readFile(fileName, function (err, data) {
+    fs.readFile(fileName, "utf-8", function (err, data) {
         if (err) throw err;
-        data = String(data).split(",");
+        data = data.split(",");
         command = data[0];
         queryArg = data[1];
-        console.log(command, queryArg);
+        processInput(command);
     });
 }
 
