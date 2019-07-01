@@ -2,30 +2,30 @@
 // Required Files
 ////////////////////////////////////////////
 require("dotenv").config(); // User must provide their own
-var keys = require("./keys.js");
+// var keys = require("./keys.js");
+var moment = require("moment");
 var fs = require("fs");
+const axios = require("axios");
+var fileName = "random.txt";
 
-////////////////////////////////////////////
-// API Keys
-////////////////////////////////////////////
-var spotify = new Spotify(keys.spotify);
+//////////////////////////////////////////////
+// // API Keys
+// ////////////////////////////////////////////
+// var spotify = new Spotify(keys.spotify);
 
 ////////////////////////////////////////////
 // Commandline Arguments
 ////////////////////////////////////////////
 var inputLength = process.argv.length;
+var argument = process.argv;
 var command = process.argv[2];
-var argument;
-
+var queryArg = sanitizeData();
 
 ////////////////////////////////////////////
 // Sanitize Data if user provides > 2 arguments
 ////////////////////////////////////////////
 function sanitizeData() {
-    argument = process.argv[3];
-        for (var i = 4; i < inputLength; i++) {
-            argument += "+" + process.argv[i];
-        }
+    return argument.slice(3).join("+");
 }
 
 ////////////////////////////////////////////
@@ -50,7 +50,19 @@ function processInput(input = command) {
 ////////////////////////////////////////////
 function queryBandsInTown() {
     var queryURL =
-        "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
+        "https://rest.bandsintown.com/artists/" + queryArg + "/events?app_id=codingbootcamp";
+    axios.get(queryURL).then(
+            function (response) {
+                if (response) {
+                    var event = response.data[0];
+                    console.log("Venue:    " + event.venue.name);
+                    console.log("Location: " + event.venue.city + ", " + event.venue.region);
+                    console.log("Date:     " + moment(event.datetime).format("LLL"));
+                }
+            })
+        .catch(function (error) {
+            console.log(error);
+        });
 }
 
 ////////////////////////////////////////////
@@ -62,29 +74,43 @@ function querySpotify() {
     // A preview link of the song from Spotify
     // The album that the song is from
 
+
 }
 
 ////////////////////////////////////////////
 // Query the OMDB API for movie info
 ////////////////////////////////////////////
 function queryOmdb() {
-    var queryUrl =
-        "http://www.omdbapi.com/?t=" + input + "&y=&plot=short&apikey=trilogy";
-
-    // Title of the movie.
-    // Year the movie came out.
-    // IMDB Rating of the movie.
-    // Rotten Tomatoes Rating of the movie.
-    // Country where the movie was produced.
-    // Language of the movie.
-    // Plot of the movie.
-    // Actors in the movie.
-
+    var queryURL = "http://www.omdbapi.com/?t=" + queryArg + "&y=&apikey=trilogy";
+    axios.get(queryURL).then(
+            function (response) {
+                if (response) {
+                    console.log("Title:           " + response.data.Title);
+                    console.log("Year:            " + response.data.Year);
+                    console.log("IMDb Rating:     " + response.data.imdbRating);
+                    console.log("Rotten Tomatoes: " + response.data.Ratings[1]);
+                    console.log("Country:         " + response.data.Country);
+                    console.log("Language:        " + response.data.Language);
+                    console.log("Plot:            " + response.data.Plot);
+                    console.log("Actors:          " + response.data.Actors);
+                }
+            })
+        .catch(function (error) {
+            console.log(error);
+        });
 }
 
 ////////////////////////////////////////////
 // Process commands in Random.txt
 ////////////////////////////////////////////
 function processRandomTxt() {
-
+    fs.readFile(fileName, function (err, data) {
+        if (err) throw err;
+        data = String(data).split(",");
+        command = data[0];
+        queryArg = data[1];
+        console.log(command, queryArg);
+    });
 }
+
+processInput();
