@@ -1,19 +1,19 @@
 ////////////////////////////////////////////
-// Required Files
+// Required Files & Libraries
 ////////////////////////////////////////////
-
 require("dotenv").config(); // User must provide their own
-var keys = require("./keys.js");
-var Spotify = require('node-spotify-api');
-var moment = require("moment");
-var fs = require("fs");
+const keys = require("./keys.js");
 const axios = require("axios");
-var fileName = "random.txt";
+const Spotify = require('node-spotify-api');
+const moment = require("moment");
+const fs = require("fs");
+const fileName = "random.txt";
+const logFile = "log.txt";
 
 //////////////////////////////////////////////
-// // API Keys
-// ////////////////////////////////////////////
-var spotify = new Spotify(keys.spotify);
+// API Keys
+//////////////////////////////////////////////
+const spotify = new Spotify(keys.spotify);
 
 ////////////////////////////////////////////
 // Commandline Arguments
@@ -21,6 +21,7 @@ var spotify = new Spotify(keys.spotify);
 var argument = process.argv;
 var command = process.argv[2];
 var queryArg = sanitizeData();
+var validSearch = true;
 
 ////////////////////////////////////////////
 // Sanitize Data if user provides > 2 arguments
@@ -47,6 +48,11 @@ function processInput(input = command) {
         processRandomTxt();
     } else {
         console.log("Invalid selection");
+        validSearch = false;
+    }
+
+    if(validSearch) {
+        addToLog();
     }
 }
 
@@ -74,6 +80,9 @@ function queryBandsInTown() {
 // Query the Spotify API for artist info
 ////////////////////////////////////////////
 function querySpotify() {
+    if (!queryArg) {
+        queryArg = "The Sign Ace of Base";
+    }
     spotify
         .search({
             type: "track",
@@ -82,12 +91,12 @@ function querySpotify() {
         })
         .then(function (response) {
             track = response.tracks.items[0];
-            console.log(track.album.artists[0].name);
-            console.log(track.name);
-            if(track.preview_url) {
-                console.log(track.preview_url);
+            console.log("Artist:  " + track.album.artists[0].name);
+            console.log("Track:   " + track.name);
+            if (track.preview_url) {
+                console.log("Preview: " + track.preview_url);
             }
-            console.log(track.album.name);
+            console.log("Album:   " + track.album.name);
         })
         .catch(function (err) {
             console.log(err);
@@ -99,13 +108,16 @@ function querySpotify() {
 // Query the OMDB API for movie info
 ////////////////////////////////////////////
 function queryOmdb() {
+    if (!queryArg) {
+        queryArg = "Mr+Nobody";
+    }
     var queryURL = "http://www.omdbapi.com/?t=" + queryArg + "&y=&apikey=trilogy";
     axios.get(queryURL).then(
             function (response) {
                 if (response) {
                     console.log("Title:           " + response.data.Title);
                     console.log("Year:            " + response.data.Year);
-                    console.log("IMDb Rating:     " + response.data.imdbRating);
+                    console.log("IMDb:            " + response.data.imdbRating);
                     console.log("Rotten Tomatoes: " + response.data.Ratings[1]);
                     console.log("Country:         " + response.data.Country);
                     console.log("Language:        " + response.data.Language);
@@ -131,4 +143,11 @@ function processRandomTxt() {
     });
 }
 
+function addToLog() {
+    fs.appendFileSync(logFile, command + "," + queryArg + "\n");
+}
+
+////////////////////////////////////////////
+// Process Input on Stsrt Up
+////////////////////////////////////////////
 processInput();
