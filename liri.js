@@ -21,7 +21,6 @@ const spotify = new Spotify(keys.spotify);
 var argument = process.argv;
 var command = process.argv[2];
 var queryArg = sanitizeData();
-var validSearch = true;
 
 ////////////////////////////////////////////
 // Sanitize Data if user provides > 2 arguments
@@ -48,11 +47,7 @@ function processInput(input = command) {
         processRandomTxt();
     } else {
         console.log("Invalid selection");
-        validSearch = false;
-    }
-
-    if(validSearch) {
-        addToLog();
+        fs.appendFileSync(logFile, "Invalid selction\n");
     }
 }
 
@@ -69,10 +64,15 @@ function queryBandsInTown() {
                     console.log("Venue:    " + event.venue.name);
                     console.log("Location: " + event.venue.city + ", " + event.venue.region);
                     console.log("Date:     " + moment(event.datetime).format("LLL"));
+                    fs.appendFileSync(logFile, "Venue:    " + event.venue.name + "\n");
+                    fs.appendFileSync(logFile, "Location: " + event.venue.city + ", " + event.venue.region + "\n");
+                    fs.appendFileSync(logFile, "Date:     " + moment(event.datetime).format("LLL") + "\n");
+                    
                 }
             })
         .catch(function (error) {
             console.log(error);
+            fs.appendFileSync(logFile, err + "\n");
         });
 }
 
@@ -93,13 +93,18 @@ function querySpotify() {
             track = response.tracks.items[0];
             console.log("Artist:  " + track.album.artists[0].name);
             console.log("Track:   " + track.name);
+            fs.appendFileSync(logFile, "Artist:  " + track.album.artists[0].name + "\n");
+            fs.appendFileSync(logFile, "Track:   " + track.name + "\n");
             if (track.preview_url) {
                 console.log("Preview: " + track.preview_url);
+                fs.appendFileSync(logFile, ("Preview: " + track.preview_url + "\n"));
             }
             console.log("Album:   " + track.album.name);
+            fs.appendFileSync(logFile, ("Album:   " + track.album.name + "\n"));
         })
         .catch(function (err) {
             console.log(err);
+            fs.appendFileSync(logFile, err + "\n");
         });
 
 }
@@ -123,10 +128,19 @@ function queryOmdb() {
                     console.log("Language:        " + response.data.Language);
                     console.log("Plot:            " + response.data.Plot);
                     console.log("Actors:          " + response.data.Actors);
+                    fs.appendFileSync(logFile, "Title:           " + response.data.Title + "\n");
+                    fs.appendFileSync(logFile, "Year:            " + response.data.Year + "\n");
+                    fs.appendFileSync(logFile, "IMDb:            " + response.data.imdbRating + "\n");
+                    fs.appendFileSync(logFile, "Rotten Tomatoes: " + response.data.Ratings[1] + "\n");
+                    fs.appendFileSync(logFile, "Country:         " + response.data.Country + "\n");
+                    fs.appendFileSync(logFile, "Language:        " + response.data.Language + "\n");
+                    fs.appendFileSync(logFile, "Plot:            " + response.data.Plot + "\n");
+                    fs.appendFileSync(logFile, "Actors:          " + response.data.Actors + "\n");
                 }
             })
         .catch(function (error) {
             console.log(error);
+            fs.appendFileSync(logFile, error + "\n");
         });
 }
 
@@ -147,6 +161,7 @@ function addToLog() {
     fs.appendFileSync(logFile, command + "," + queryArg + "\n");
 }
 
+fs.appendFileSync(logFile, "\n-----------------------------------------\n\n");
 ////////////////////////////////////////////
 // Process Input on Stsrt Up
 ////////////////////////////////////////////

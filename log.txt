@@ -1,5 +1,31 @@
-spotify-this-song,The Sign Ace of Base
-movie-this,Mr+Nobody
-concert-this,
-movie-this,the+matrix
-do-what-it-says,
+
+-----------------------------------------
+
+Venue:    Summerfest
+Location: Milwaukee, WI
+Date:     July 6, 2019 7:00 PM
+
+-----------------------------------------
+
+Artist:  Lil Nas X
+Track:   Old Town Road - Remix
+Preview: https://p.scdn.co/mp3-preview/d94ec2ebe62fd52cf038760f57c251c145346bb2?cid=89750a7c201142079eee1117103a161e
+Album:   Old Town Road
+
+-----------------------------------------
+
+Title:           The Matrix
+Year:            1999
+IMDb:            8.7
+Rotten Tomatoes: [object Object]
+Country:         USA
+Language:        English
+Plot:            A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.
+Actors:          Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss, Hugo Weaving
+
+-----------------------------------------
+
+Artist:  Backstreet Boys
+Track:   I Want It That Way
+Preview: https://p.scdn.co/mp3-preview/e72a05dc3f69c891e3390c3ceaa77fad02f6b5f6?cid=89750a7c201142079eee1117103a161e
+Album:   The Hits--Chapter One
